@@ -3,17 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chatbot</title>
-    <link rel="stylesheet" href="style.css">
+    <title>AI Chatbot - Gemini API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #chat-box {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            text-align: left;
+        }
+        input {
+            width: 70%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
 </head>
 <body>
     <div class="chat-container">
-        <h2>Ask AI (Powered by Gemini)</h2>
+        <h2>AI Chatbot (Gemini API)</h2>
         <div id="chat-box"></div>
-        <input type="text" id="user-input" placeholder="Type your message...">
+        <input type="text" id="user-input" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
         <button onclick="sendMessage()">Send</button>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        const API_KEY = "AIzaSyBJ3nwrlcu-aoog_GBOBmDPoNBOuzIR8mY"; // 🔹 Replace with your Google Gemini API Key
+
+        async function sendMessage() {
+            let userInput = document.getElementById("user-input").value.trim();
+            if (!userInput) return;
+
+            document.getElementById("chat-box").innerHTML += `<p><b>You:</b> ${userInput}</p>`;
+            document.getElementById("user-input").value = "";
+
+            try {
+                let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateText?key=${API_KEY}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: { text: userInput } })
+                });
+
+                let result = await response.json();
+                let botReply = result.candidates?.[0]?.output || "I'm sorry, I couldn't process that.";
+
+                document.getElementById("chat-box").innerHTML += `<p><b>AI:</b> ${botReply}</p>`;
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById("chat-box").innerHTML += `<p><b>AI:</b> Error connecting to the AI.</p>`;
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        }
+    </script>
 </body>
 </html>
