@@ -1,94 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaustav's AI Chatbot</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f4; }
-        .chat-container { width: 100%; height: 100vh; background: white; display: flex; flex-direction: column; }
-        .header { padding: 15px; background: #007bff; color: white; text-align: center; font-size: 20px; font-weight: bold; }
-        .messages { flex: 1; padding: 20px; overflow-y: auto; }
-        .user, .bot { padding: 10px; border-radius: 5px; margin: 5px 0; max-width: 80%; }
-        .user { background: #007bff; color: white; align-self: flex-end; text-align: right; }
-        .bot { background: #e0e0e0; align-self: flex-start; }
-        .input-container { display: flex; padding: 10px; background: #fff; border-top: 1px solid #ccc; }
-        input { flex: 1; padding: 10px; border: 1px solid gray; border-radius: 5px; font-size: 16px; }
-        button { padding: 10px; margin-left: 10px; border: none; background: #28a745; color: white; cursor: pointer; border-radius: 5px; font-size: 16px; }
-    </style>
-</head>
-<body>
+<script>
+    // Example function to get AI response using Gemini (hypothetical)
+    async function getGeminiResponse(message) {
+        const apiKey = 'AIzaSyBNdQwOFtjhYI4WYBJh6zb9IIeo23tulwQ';  // Replace with your Gemini API key
+        const apiUrl = 'https://gemini-api-url.com/v1/response';  // Replace with Gemini's API endpoint
 
-    <div class="chat-container">
-        <div class="header">Kaustav's AI Chatbot</div>
-        <div class="messages" id="chatbox"></div>
-        <div class="input-container">
-            <input type="text" id="userInput" placeholder="Type your message..." autofocus>
-            <button onclick="sendMessage()">Send</button>
-        </div>
-    </div>
-
-    <script>
-        let userName = localStorage.getItem("userName");
-
-        if (!userName) {
-            userName = prompt("Hi! What's your name?");
-            if (userName) localStorage.setItem("userName", userName);
-        }
-
-        // Show chatbot introduction message
-        let chatbox = document.getElementById("chatbox");
-        let botIntro = document.createElement("div");
-        botIntro.className = "bot";
-        botIntro.innerText = `Hello ${userName}! My name is Kaustav. I am a chatbot created by Kaustav, a 19-year-old Indian boy. How can I assist you today?`;
-        chatbox.appendChild(botIntro);
-
-        async function sendMessage() {
-            let userInput = document.getElementById("userInput").value;
-            if (userInput.trim() === "") return;
-
-            // Show user message
-            let userMsg = document.createElement("div");
-            userMsg.className = "user";
-            userMsg.innerText = userInput;
-            chatbox.appendChild(userMsg);
-            document.getElementById("userInput").value = ""; // Clear input
-
-            // Send the user's message to the backend API (Gemini API)
-            try {
-                let response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ userInput, userName })
-                });
-
-                let data = await response.json();
-                let botReply = data.reply || "Sorry, I couldn't understand that.";
-
-                // Show bot reply
-                let botMsg = document.createElement("div");
-                botMsg.className = "bot";
-                botMsg.innerText = botReply;
-                chatbox.appendChild(botMsg);
-                chatbox.scrollTop = chatbox.scrollHeight; // Auto-scroll
-            } catch (error) {
-                console.error("Error in API call:", error);
-                let botError = document.createElement("div");
-                botError.className = "bot";
-                botError.innerText = "Something went wrong. Please try again later.";
-                chatbox.appendChild(botError);
-            }
-        }
-
-        document.getElementById("userInput").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                sendMessage();
-            }
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                input: message  // The user input
+            })
         });
-    </script>
 
-</body>
-</html>
+        const data = await response.json();
+        if (data && data.reply) {
+            displayMessage(data.reply, 'chatbot');
+        } else {
+            displayMessage('Sorry, I didn\'t understand that.', 'chatbot');
+        }
+    }
+</script>
