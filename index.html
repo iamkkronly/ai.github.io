@@ -1,25 +1,120 @@
-<script>
-    // Example function to get AI response using Gemini (hypothetical)
-    async function getGeminiResponse(message) {
-        const apiKey = 'AIzaSyBNdQwOFtjhYI4WYBJh6zb9IIeo23tulwQ';  // Replace with your Gemini API key
-        const apiUrl = 'https://gemini-api-url.com/v1/response';  // Replace with Gemini's API endpoint
-
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                input: message  // The user input
-            })
-        });
-
-        const data = await response.json();
-        if (data && data.reply) {
-            displayMessage(data.reply, 'chatbot');
-        } else {
-            displayMessage('Sorry, I didn\'t understand that.', 'chatbot');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f7f7f7;
         }
-    }
-</script>
+        .chat-container {
+            width: 400px;
+            max-width: 100%;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            overflow: hidden;
+        }
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+        .chat-box div {
+            margin: 10px 0;
+        }
+        .chat-input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        .chat-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        .chatbot-response {
+            color: #333;
+        }
+        .user-message {
+            text-align: right;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-box" id="chatBox">
+            <!-- Chat messages will appear here -->
+        </div>
+        <input type="text" class="chat-input" id="userInput" placeholder="Type your message..." onkeyup="sendMessage(event)">
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+
+        // Function to send a message
+        function sendMessage(event) {
+            if (event.key === 'Enter' && userInput.value.trim() !== '') {
+                const userMessage = userInput.value;
+                displayMessage(userMessage, 'user');
+                userInput.value = ''; // Clear the input field
+                getAIResponse(userMessage); // Get AI response
+            }
+        }
+
+        // Function to display messages
+        function displayMessage(message, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add(sender === 'user' ? 'user-message' : 'chatbot-response');
+            messageDiv.textContent = message;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight; // Scroll to bottom
+        }
+
+        // Function to get AI response using Gemini (hypothetical API)
+        async function getAIResponse(message) {
+            const apiKey = 'AIzaSyBNdQwOFtjhYI4WYBJh6zb9IIeo23tulwQ';  // Replace with your Gemini API key
+            const apiUrl = 'https://gemini-api-url.com/v1/response';  // Replace with Gemini's API endpoint
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        input: message  // The user input
+                    })
+                });
+
+                const data = await response.json();
+                if (data && data.reply) {
+                    displayMessage(data.reply, 'chatbot');
+                } else {
+                    displayMessage('Sorry, I didn\'t understand that.', 'chatbot');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                displayMessage('Sorry, there was an error. Please try again.', 'chatbot');
+            }
+        }
+    </script>
+</body>
+</html>
