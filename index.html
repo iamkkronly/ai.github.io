@@ -3,91 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chatbot - Gemini API</title>
+    <title>Kaustav's AI Chatbot</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
-        }
-        .chat-container {
-            width: 100%;
-            max-width: 400px;
-            margin: 20px auto;
-            padding: 15px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        #chat-box {
-            height: 300px;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-bottom: 10px;
-            background: #f9f9f9;
-            border-radius: 5px;
-            text-align: left;
-        }
-        input {
-            width: 70%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
-            padding: 10px;
-            border: none;
-            background: #007bff;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #0056b3;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f4; }
+        .chat-container { width: 90%; max-width: 400px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px gray; margin: 20px auto; }
+        .messages { max-height: 300px; overflow-y: auto; text-align: left; }
+        .user, .bot { padding: 10px; border-radius: 5px; margin: 5px 0; }
+        .user { background: #007bff; color: white; text-align: right; }
+        .bot { background: #e0e0e0; }
+        input, button { width: 100%; padding: 10px; margin-top: 10px; border-radius: 5px; border: 1px solid gray; }
+        button { background: #28a745; color: white; cursor: pointer; }
     </style>
 </head>
 <body>
+
     <div class="chat-container">
-        <h2>AI Chatbot (Gemini API)</h2>
-        <div id="chat-box"></div>
-        <input type="text" id="user-input" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+        <h2>Kaustav's AI Chatbot</h2>
+        <div class="messages" id="chatbox"></div>
+        <input type="text" id="userInput" placeholder="Type your message..." autofocus>
         <button onclick="sendMessage()">Send</button>
     </div>
 
     <script>
-        const API_KEY = "AIzaSyDbiSe6EKwfMYO_9Y9IyROoLiNbh6ALtBg"; // 🔹 Replace with your Google Gemini API Key
+        const API_KEY = "AIzaSyD26sfeIRLhisMXG3JMe_GGrnxMKR9K0BU"; // Replace with your actual Gemini API key
+        let userName = localStorage.getItem("userName");
+
+        if (!userName) {
+            userName = prompt("Hi! What's your name?");
+            if (userName) localStorage.setItem("userName", userName);
+        }
+
+        // Show chatbot introduction message
+        let chatbox = document.getElementById("chatbox");
+        let botIntro = document.createElement("div");
+        botIntro.className = "bot";
+        botIntro.innerText = `Hello ${userName}! My name is Kaustav. I am a chatbot created by Kaustav, an 18-year-old Indian boy. How can I assist you today?`;
+        chatbox.appendChild(botIntro);
 
         async function sendMessage() {
-            let userInput = document.getElementById("user-input").value.trim();
-            if (!userInput) return;
+            let userInput = document.getElementById("userInput").value;
+            if (userInput.trim() === "") return;
 
-            document.getElementById("chat-box").innerHTML += `<p><b>You:</b> ${userInput}</p>`;
-            document.getElementById("user-input").value = "";
+            // Show user message
+            let userMsg = document.createElement("div");
+            userMsg.className = "user";
+            userMsg.innerText = userInput;
+            chatbox.appendChild(userMsg);
+            document.getElementById("userInput").value = ""; // Clear input
 
-            try {
-                let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateText?key=${API_KEY}`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt: { text: userInput } })
-                });
+            // Call Gemini API with personalized context
+            let response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + API_KEY, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contents: [{ parts: [{ text: `User ${userName} says: ${userInput}. My name is Kaustav. I am a chatbot created by Kaustav, an 18-year-old Indian boy.` }] }] })
+            });
 
-                let result = await response.json();
-                let botReply = result.candidates?.[0]?.output || "I'm sorry, I couldn't process that.";
+            let data = await response.json();
+            let botReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't understand that.";
 
-                document.getElementById("chat-box").innerHTML += `<p><b>AI:</b> ${botReply}</p>`;
-            } catch (error) {
-                console.error("Error:", error);
-                document.getElementById("chat-box").innerHTML += `<p><b>AI:</b> Error connecting to the AI.</p>`;
-            }
-        }
+            // Show bot reply
+            let botMsg = document.createElement("div");
+            botMsg.className = "bot";
+            botMsg.innerText = botReply;
+            chatbox.appendChild(botMsg);
 
-        function handleKeyPress(event) {
-            if (event.key === "Enter") {
-                sendMessage();
-            }
+            chatbox.scrollTop = chatbox.scrollHeight; // Auto-scroll
         }
     </script>
+
 </body>
 </html>
